@@ -14,6 +14,8 @@ from lazypredict.Supervised import LazyClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+
 # %% [markdown]
 # ## Preprocessing Dat
 
@@ -152,32 +154,37 @@ models
 # ### Vybrali jsme model podle Lazy Predict -> hledání optimálních parametrů pomocí grid search
 
 # %%
+# knn podle lazy predict vypadá slibně
 knn = KNeighborsClassifier()
+# parametry, podle kterých budu hledat optimální nastavení modelu
 parametry = {'metric':('minkowski', 'manhattan', 'cosine'), 'weights':('uniform', 'distance'), 'n_neighbors':[3, 5, 7, 9]}
+# inicializace grid search -> optimalizace - hledání nejlepší kombinace pro daný model a parametry
 gs = GridSearchCV(knn, parametry)
 
 # %%
+# provedení hodně tréninků pomocí k-fold a najití nejlepší kombinace parametrů
 gs.fit(X_train, y_train)
 
 # %%
+# vítězné parametry
 gs.best_params_
 
 # %%
+# model s nejlepšími parametry
 best_knn = gs.best_estimator_
 
 # %%
+# predikce pomocí nejlepšího modelu
 y_best_knn = best_knn.predict(X_test)
 
 # %% [markdown]
 # ### Vyhodnocení na test datech
 
 # %%
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
-
-# %%
 print(classification_report(y_test, y_best_knn))
 
 # %%
+# Confusion matice
 cm = confusion_matrix(y_test, y_best_knn, labels=best_knn.classes_)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm,
                               display_labels=best_knn.classes_)
